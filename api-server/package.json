@@ -1,12 +1,12 @@
 {
   "name": "api-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "The API server assumes the responsibility of processing user requests, executing Task commands on AWS, meticulously capturing all logs, and seamlessly transmitting them to the Redis server.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Pawan Darji",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-ecs": "^3.511.0",

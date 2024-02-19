@@ -1,12 +1,12 @@
 {
   "name": "build-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "The Build server undertakes the crucial task of crafting Docker images, installing essential dependencies, cloning the Git project, compiling the project, and ultimately dispatching the project's built artifacts to an S3 bucket for optimal utilization.",
   "main": "script.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Pawan Darji",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.515.0",

@@ -1,5 +1,7 @@
+# using ubuntu image
 FROM ubuntu:focal
 
+# Upading system, installing NodeJS and Git
 RUN apt-get update
 RUN apt-get install -y curl
 RUN curl -sl https://deb.nodesource.com/setup_20.x | bash -

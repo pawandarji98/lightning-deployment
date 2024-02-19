@@ -35,11 +35,11 @@ const config = {
 
 app.use(express.json())
 
-app.post('/project', async (req, res) => {
+app.post('/deploy-git-project', async (req, res) => {
     const { gitURL, slug } = req.body
     const projectSlug = slug ? slug : generateSlug()
 
-    // Spin the container
+    // Setting up the task command
     const command = new RunTaskCommand({
         cluster: config.CLUSTER,
         taskDefinition: config.TASK,
@@ -65,14 +65,16 @@ app.post('/project', async (req, res) => {
         }
     })
 
+    //Firing the task command
     await ecsClient.send(command);
 
+    //Returning response as queued, NOTE:Deployment will take some time,
+    //so this url will be available in 30 to 60 seconds
     return res.json({ status: 'queued', data: { projectSlug, url: `http://${projectSlug}.localhost:8000` } })
 
 })
 
 async function initRedisSubscribe() {
-    console.log('Subscribed to logs....')
     subscriber.psubscribe('logs:*')
     subscriber.on('pmessage', (pattern, channel, message) => {
         io.to(channel).emit('message', message)

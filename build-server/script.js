@@ -25,34 +25,29 @@ function publishLog(log) {
 }
 
 async function init() {
-    console.log('Executing script.js')
-    publishLog('Build Started...')
+    publishLog('Project build started now...')
     const outDirPath = path.join(__dirname, 'output')
 
     const p = exec(`cd ${outDirPath} && npm install && npm run build`)
 
     p.stdout.on('data', function (data) {
-        console.log(data.toString())
         publishLog(data.toString())
     })
 
     p.stdout.on('error', function (data) {
-        console.log('Error', data.toString())
         publishLog(`error: ${data.toString()}`)
     })
 
     p.on('close', async function () {
-        console.log('Build Complete')
-        publishLog(`Build Complete`)
+        publishLog(`Project build complete`)
         const distFolderPath = path.join(__dirname, 'output', 'dist')
         const distFolderContents = fs.readdirSync(distFolderPath, { recursive: true })
 
-        publishLog(`Starting to upload`)
+        publishLog(`Starting to upload project build files`)
         for (const file of distFolderContents) {
             const filePath = path.join(distFolderPath, file)
             if (fs.lstatSync(filePath).isDirectory()) continue;
 
-            console.log('uploading', filePath)
             publishLog(`uploading ${file}`)
 
             const command = new PutObjectCommand({
@@ -64,10 +59,8 @@ async function init() {
 
             await s3Client.send(command)
             publishLog(`uploaded ${file}`)
-            console.log('uploaded', filePath)
         }
         publishLog(`Done................ JAI SHREE RAM`)
-        console.log('Done............... JAI SHREE RAM')
     })
 }
 

@@ -1,12 +1,12 @@
 {
-  "name": "vercel-clone",
+  "name": "s3-reverse-proxy",
   "version": "1.0.0",
-  "description": "",
+  "description": "The reverse proxy server efficiently manages user requests, seamlessly reverse proxying them from the S3 bucket to the client side, ensuring optimal performance and responsiveness throughout the process",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Pawan Darji",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
