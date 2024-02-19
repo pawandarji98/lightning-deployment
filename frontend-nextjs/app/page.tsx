@@ -17,6 +17,7 @@ export default function Home() {
   const [logs, setLogs] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
+  const [live, setLive] = useState(false);
 
   const [projectId, setProjectId] = useState<string | undefined>();
   const [deployPreviewURL, setDeployPreviewURL] = useState<
@@ -33,63 +34,24 @@ export default function Home() {
     return [regex.test(repoURL), "Enter valid Github Repository URL"];
   }, [repoURL]);
 
-  // const handleClickDeploy = useCallback(async () => {
-  //   setLoading(true);
-
-  //   const { data } = await axios.post(`http://localhost:9000/project`, {
-  //     gitURL: repoURL,
-  //     slug: projectId,
-  //   });
-
-  //   if (data && data.data) {
-  //     const { projectSlug, url } = data.data;
-  //     setProjectId(projectSlug);
-  //     setDeployPreviewURL(url);
-
-  //     console.log(`Subscribing to logs:${projectSlug}`);
-  //     socket.emit("subscribe", `logs:${projectSlug}`);
-  //   }
-  // }, [projectId, repoURL]);
-
-  const logss: any = [
-    "Deployment process initiated for React.js application.",
-    "Docker image creation started.",
-    "Docker image successfully created and pushed to AWS ECR.",
-    "Cloning GitHub repository for the React.js application.",
-    "Project successfully cloned from GitHub.",
-    "Installing dependencies for the React.js application.",
-    "Dependencies installed successfully.",
-    "Building React.js application.",
-    "Build process completed without errors.",
-    "Uploading build artifacts to S3 bucket.",
-    "Build artifacts successfully uploaded to S3 bucket.",
-    "Deployment to ECS cluster initiated.",
-    "React.js application successfully deployed to ECS cluster.",
-    "Reverse proxy configuration updated for optimal routing.",
-    "Live domain updated to point to the deployed React.js application.",
-    "Deployment process completed successfully.",
-    "Installing npm package: react@latest",
-    "npm WARN deprecated axios@0.21.1: Critical security vulnerability fixed in v0.21.2. For more information, see https://github.com/axios/axios/pull/3410",
-    "Installing npm package: react-dom@latest",
-    "npm WARN deprecated core-js@3.16.2: core-js@<3.3 is no longer maintained and not recommended for usage due to the number of issues. Please, upgrade your dependencies to the actual version of core-js@3.",
-    "Installing npm package: lodash@latest",
-    "Installing npm package: express@latest",
-    "Installing npm package: webpack@latest",
-    "npm WARN deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142",
-    "Installing npm package: jest@latest",
-    "npm WARN deprecated chokidar@3.5.2: Chokidar 2 will break on node v14+. Upgrade to chokidar 3 with 15x less dependencies.",
-  ];
-
-  const logsss = [...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss,...logss, ...logss, ...logss, ...logss, ...logss, ...logss]
-
   const handleClickDeploy = useCallback(async () => {
     setLoading(true);
-    for (var log of logsss) {
-      await setLogs((prev) => [...prev, log]);
-      await logContainerRef.current?.scrollIntoView({ behavior: "smooth" });
+
+    const { data } = await axios.post(`http://localhost:9000/project`, {
+      gitURL: repoURL,
+      slug: projectId,
+    });
+
+    if (data && data.data) {
+      const { projectSlug, url } = data.data;
+      setProjectId(projectSlug);
+      setDeployPreviewURL(url);
+
+      console.log(`Subscribing to logs:${projectSlug}`);
+      socket.emit("subscribe", `logs:${projectSlug}`);
     }
-    setLoading(false);
-  }, []);
+  }, [projectId, repoURL]);
+
 
   const handleSocketIncommingMessage = useCallback((message: string) => {
     console.log(`[Incomming Socket Message]:`, typeof message, message);
@@ -104,8 +66,11 @@ export default function Home() {
     return () => {
       socket.off("message", handleSocketIncommingMessage);
     };
-  }, [handleSocketIncommingMessage]);
+  }, [handleSocketIncommingMessage, live]);
 
+  function handleOpen() {
+    window.open(deployPreviewURL)
+  }
   return (
     <main
       className="flex justify-center items-center h-[100vh]"
@@ -147,6 +112,15 @@ export default function Home() {
             <h4>{loading ? "In Progress" : "Deploy"}</h4>
           </Button>
         </div>
+        {live === true ? <div className="flex justify-center items-center">
+          <Button
+            style={{ background: "green", width: "50%" }}
+            onClick={handleOpen}
+            className="mt-3"
+          >
+            <h4>Go to your Website</h4>
+          </Button>
+        </div> : ''}
         {deployPreviewURL && (
           <div className="mt-2 bg-slate-900 py-4 px-2 rounded-lg">
             <p>
