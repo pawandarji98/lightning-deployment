@@ -1,56 +1,73 @@
-const { exec }  = require('child_process')
+const { exec } = require('child_process')
 const path = require('path')
 const fs = require('fs')
-const {S3Client , PutObjectCommand} = require('@aws-sdk/client-s3')
-const mime = require('mime-types');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
+const mime = require('mime-types')
+const Redis = require('ioredis')
+
+
+const publisher = new Redis('')
+
 
 const s3Client = new S3Client({
-    region:'ap-south-1',
-    credentials:{
-        accessKeyId:'AKIAYS2NU4WSXXD7YNEV',
-        secretAccessKey:'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'
+    region: '',
+    credentials: {
+        accessKeyId: '',
+        secretAccessKey: ''
     }
 })
 
-const PROJECT_ID = process.env.PROJECT_ID;
+const PROJECT_ID = process.env.PROJECT_ID
+
+
+function publishLog(log) {
+    publisher.publish(`logs:${PROJECT_ID}`, JSON.stringify({ log }))
+}
 
 async function init() {
-    console.log("Executing scrip.js");
+    console.log('Executing script.js')
+    publishLog('Build Started...')
     const outDirPath = path.join(__dirname, 'output')
 
-    const p = exec(`cd ${outDirPath} && npm install && npm run build`);
+    const p = exec(`cd ${outDirPath} && npm install && npm run build`)
 
-    p.stdout.on('data' , function (data) {
-        console.log(data.toString());
+    p.stdout.on('data', function (data) {
+        console.log(data.toString())
+        publishLog(data.toString())
     })
 
-    p.stdout.on('error' , function (data) {
-        console.log('Erorr' , data.toString());
-    });
+    p.stdout.on('error', function (data) {
+        console.log('Error', data.toString())
+        publishLog(`error: ${data.toString()}`)
+    })
 
-    p.on('close' , async function() {
-        console.log('Build complete');
-        const distFolderpath = path.join(__dirname , 'output' , 'dist')
-        const distFolderContents = fs.readdirSync(distFolderpath , {recursive:true})
+    p.on('close', async function () {
+        console.log('Build Complete')
+        publishLog(`Build Complete`)
+        const distFolderPath = path.join(__dirname, 'output', 'dist')
+        const distFolderContents = fs.readdirSync(distFolderPath, { recursive: true })
 
-        for(const filepath of distFolderContents) {
-            if(fs.lstatSync(filepath).isDirectory()) continue;
+        publishLog(`Starting to upload`)
+        for (const file of distFolderContents) {
+            const filePath = path.join(distFolderPath, file)
+            if (fs.lstatSync(filePath).isDirectory()) continue;
 
-            console.log("Uploading" , filepath)
+            console.log('uploading', filePath)
+            publishLog(`uploading ${file}`)
 
             const command = new PutObjectCommand({
-                Bucket:'lightning-deployment',
-                Key:`__outputs/${PROJECT_ID}/${filepath}`,
-                Body:fs.createReadStream(filepath),
-                ContentType:mime.lookup(filepath)
+                Bucket: 'vercel-clone-outputs',
+                Key: `__outputs/${PROJECT_ID}/${file}`,
+                Body: fs.createReadStream(filePath),
+                ContentType: mime.lookup(filePath)
             })
 
-            await s3Client.send(command);
-            console.log("Uploaded" , filepath)
-
+            await s3Client.send(command)
+            publishLog(`uploaded ${file}`)
+            console.log('uploaded', filePath)
         }
-
-        console.log("Done..............JAI SHREE RAM")
+        publishLog(`Done................ JAI SHREE RAM`)
+        console.log('Done............... JAI SHREE RAM')
     })
 }
 
