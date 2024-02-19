@@ -46,7 +46,7 @@ export default function Home() {
       const { projectSlug, url } = data.data;
       setProjectId(projectSlug);
       setDeployPreviewURL(url);
-
+      setLive(true)
       console.log(`Subscribing to logs:${projectSlug}`);
       socket.emit("subscribe", `logs:${projectSlug}`);
     }
