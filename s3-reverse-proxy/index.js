@@ -4,7 +4,7 @@ const httpProxy = require('http-proxy')
 const app = express()
 const PORT = 8000
 
-const BASE_PATH = 'https://vercel-clone-outputs.s3.ap-south-1.amazonaws.com/__outputs'
+const BASE_PATH = 'YOUR_S3_BUCKET_BASE_PATH'
 
 const proxy = httpProxy.createProxy()
 

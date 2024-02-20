@@ -51,7 +51,7 @@ async function init() {
             publishLog(`uploading ${file}`)
 
             const command = new PutObjectCommand({
-                Bucket: 'vercel-clone-outputs',
+                Bucket: 'YOUR_BUCKET_NAME',
                 Key: `__outputs/${PROJECT_ID}/${file}`,
                 Body: fs.createReadStream(filePath),
                 ContentType: mime.lookup(filePath)
